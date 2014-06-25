@@ -1,8 +1,9 @@
 class Task
-  attr_reader :owner, :pid, :cpu, :mem, :vsz, :rss, :tty, :stat, :start, :time, :command, :errors
-  attr_writer :errors
+  attr_reader :owner, :pid, :cpu, :mem, :vsz, :rss, :tty, :stat, :start, :time, :command
+  attr_accessor :errors
 
   def initialize(args)
+    self.errors ||= []
     args.each do |k,v|
       instance_variable_set("@#{k}", v) unless v.nil?
     end
@@ -10,7 +11,7 @@ class Task
 
   def self.all
     tasks = []
-    lines = `ps faux`.lines[1..-1]
+    lines = `ps faux --no-headers`.lines
     lines.each do |line|
       splitted_line = line.split(" ")
       owner = splitted_line.shift
@@ -36,21 +37,32 @@ class Task
   end
 
   def save
-    self.errors ||= []
+    pid = nil
+    if `which #{self.command}`.empty?
+      self.errors << "Command not found"
+      return false  
+    end
     begin
       pid = Process.spawn self.command
-      Process.detach pid
+      if pid
+        Process.detach(pid)
+      else
+        self.errors << "Can't execute"
+        return false
+      end      
     rescue Exception => e
       self.errors << e.message
       return false
     end
+    new_task = Task.find(pid)
+    new_task.instance_variables.each do |v|
+      instance_variable_set(v,new_task.instance_variable_get(v))
+    end
 
-    #return system(self.command+"#{' &' if self.command[-1] != '&'}")
+    return true
   end
 
   def update(args)
-    self.errors ||= []
-
     begin
       Process.setpriority Process::PRIO_PROCESS, self.pid, args[:prio].to_i if args[:prio]
     rescue Exception => e
@@ -69,8 +81,6 @@ class Task
   end
 
   def destroy
-    self.errors ||= []
-
     begin
       Process.kill :KILL, self.pid
     rescue Exception => e
