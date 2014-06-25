@@ -1,33 +1,26 @@
 class Task
   attr_reader :owner, :pid, :cpu, :mem, :vsz, :rss, :tty, :stat, :start, :time, :command
-  attr_accessor :errors
+  attr_accessor :errors, :prio
 
   def initialize(args)
-    self.errors ||= []
+    self.errors = []
     args.each do |k,v|
       instance_variable_set("@#{k}", v) unless v.nil?
-    end
+    end    
+    
+    self.prio = Process.getpriority(Process::PRIO_PROCESS, self.pid) rescue 0    
   end
 
   def self.all
     tasks = []
-    lines = `ps faux --no-headers`.lines
-    lines.each do |line|
+    lines = `ps faux --no-headers | less -+S`.each_line do |line|
       splitted_line = line.split(" ")
-      owner = splitted_line.shift
-      pid = splitted_line.shift
-      cpu = splitted_line.shift
-      mem = splitted_line.shift
-      vsz = splitted_line.shift
-      rss = splitted_line.shift
-      tty = splitted_line.shift
-      stat = splitted_line.shift
-      start = splitted_line.shift
-      time = splitted_line.shift
-      command = splitted_line.join(" ")
-      tasks << Task.new({owner: owner, pid: pid.to_i, cpu: cpu, mem: mem, 
-                         vsz: vsz, rss: rss, tty: tty, stat: stat, start: start,
-                         time: time, command: command})
+      tasks << Task.new({owner: splitted_line.shift, pid: splitted_line.shift.to_i, 
+                         cpu: splitted_line.shift, mem: splitted_line.shift, 
+                         vsz: splitted_line.shift, rss: splitted_line.shift, 
+                         tty: splitted_line.shift, stat: splitted_line.shift, 
+                         start: splitted_line.shift, time: splitted_line.shift,
+                         command: splitted_line.join(" ")})
     end
     return tasks
   end
@@ -38,22 +31,20 @@ class Task
 
   def save
     pid = nil
-    if `which #{self.command}`.empty?
+    
+    if `which #{self.command.strip.split(' ')[0]}`.empty?
       self.errors << "Command not found"
       return false  
     end
+
     begin
       pid = Process.spawn self.command
-      if pid
-        Process.detach(pid)
-      else
-        self.errors << "Can't execute"
-        return false
-      end      
+      Process.detach(pid)
     rescue Exception => e
       self.errors << e.message
       return false
     end
+
     new_task = Task.find(pid)
     new_task.instance_variables.each do |v|
       instance_variable_set(v,new_task.instance_variable_get(v))

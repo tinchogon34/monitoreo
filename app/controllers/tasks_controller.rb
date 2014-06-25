@@ -33,7 +33,7 @@ class TasksController < ApplicationController
     @task = Task.find(params[:pid])
 
     if @task.update(params[:task])
-      head :no_content
+      render json: @task
     else
       render json: @task.errors, status: :unprocessable_entity
     end
@@ -43,8 +43,11 @@ class TasksController < ApplicationController
   # DELETE /tasks/1.json
   def destroy
     @task = Task.find(params[:pid])
-    @task.destroy
-
-    head :no_content
+    
+    if @task.destroy
+      head :no_content
+    else
+      render json: @task.errors, status: :unprocessable_entity
+    end
   end
 end
