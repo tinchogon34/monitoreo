@@ -7,8 +7,14 @@ class UsersController < ApplicationController
     render json: @users
   end
 
+  def show
+    @user = User.find(params[:name])
+
+    render json: @user
+  end
+
   def tasks
-    @tasks = Task.all.select{|task| task.owner == params[:name]}
+    @tasks = Task.all_by_user params[:name]
 
     render json: @tasks
   end

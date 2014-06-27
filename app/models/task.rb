@@ -1,28 +1,52 @@
 class Task
   attr_reader :owner, :pid, :cpu, :mem, :vsz, :rss, :tty, :stat, :start, :time, :command
-  attr_accessor :errors, :prio
+  attr_accessor :errors, :prio, :childs, :removable
 
   def initialize(args)
-    self.errors = []
     args.each do |k,v|
       instance_variable_set("@#{k}", v) unless v.nil?
     end    
-    
+
     self.prio = Process.getpriority(Process::PRIO_PROCESS, self.pid) rescue 0    
+    self.errors =[]
+    self.childs = []
   end
 
   def self.all
-    tasks = []
-    lines = `ps faux --no-headers | less -+S`.each_line do |line|
-      splitted_line = line.split(" ")
-      tasks << Task.new({owner: splitted_line.shift, pid: splitted_line.shift.to_i, 
-                         cpu: splitted_line.shift, mem: splitted_line.shift, 
-                         vsz: splitted_line.shift, rss: splitted_line.shift, 
-                         tty: splitted_line.shift, stat: splitted_line.shift, 
-                         start: splitted_line.shift, time: splitted_line.shift,
-                         command: splitted_line.join(" ")})
+    tasks = parse_ps
+
+    tasks.each do |task|
+      `ps h --ppid #{task.pid} -o pid`.each_line do |pid|
+        ctask = tasks.detect {|t| t.pid == pid.to_i}
+        next if not ctask
+        ctask.removable = true
+        task.childs << ctask
+      end
     end
+
+    tasks.delete_if {|task| task.removable}
+    
     return tasks
+  end
+
+  def self.all_untree
+    parse_ps
+  end
+
+  def self.all_by_user(name)
+    tasks = parse_ps
+
+    tasks_user = tasks.select{|task| task.owner == name}
+
+    tasks_user.each do |task|
+      `ps h --ppid #{task.pid} -o pid`.each_line do |pid|
+        ctask = tasks.detect {|t| t.pid == pid.to_i}
+        next if not ctask
+        task.childs << ctask
+      end
+    end
+
+    return tasks_user
   end
 
   def self.find(pid)
@@ -80,5 +104,27 @@ class Task
     end
 
     return true
+  end
+
+  def as_json(options={})
+    options[:except] ||= ["errors", "removable"]
+    super(options)
+  end
+
+  private
+
+  def self.parse_ps
+    tasks = []
+    lines = `ps faux --no-headers | less -+S`.each_line do |line|
+      splitted_line = line.split(" ")
+      tasks << Task.new({owner: splitted_line.shift, pid: splitted_line.shift.to_i, 
+                         cpu: splitted_line.shift, mem: splitted_line.shift, 
+                         vsz: splitted_line.shift, rss: splitted_line.shift, 
+                         tty: splitted_line.shift, stat: splitted_line.shift, 
+                         start: splitted_line.shift, time: splitted_line.shift,
+                         command: splitted_line.join(" ").gsub('\\_ ','')})
+
+    end
+    return tasks
   end
 end
