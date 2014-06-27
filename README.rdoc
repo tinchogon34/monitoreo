@@ -1,13 +1,13 @@
 == README
 
-Prefix Verb   URI Pattern                  Controller#Action     Description
+Verb   URI Pattern                  Controller#Action     Description
 
-tasks_user GET    /users/:name/tasks(.:format) users#tasks       See all running processes from an specific user
-     users GET    /users(.:format)             users#index       See all users running processes and ther info
-      user GET    /users/:name(.:format)       users#show        See one specific user and his info
-     tasks GET    /tasks(.:format)             tasks#index       See all running processes and their info
-           POST   /tasks(.:format)             tasks#create      Spawn new process
-      task GET    /tasks/:pid(.:format)        tasks#show        See one specific process and his info
-           PATCH  /tasks/:pid(.:format)        tasks#update      Repriorize/ChangeGid to a process
-           PUT    /tasks/:pid(.:format)        tasks#update      Repriorize/ChangeGid to a process
-           DELETE /tasks/:pid(.:format)        tasks#destroy     Kill a process
+GET    /users/:name/tasks(.:format) users#tasks       See all running processes from an specific user
+GET    /users(.:format)             users#index       See all users running processes and ther info
+GET    /users/:name(.:format)       users#show        See one specific user and his info
+GET    /tasks(.:format)             tasks#index       See all running processes and their info
+POST   /tasks(.:format)             tasks#create      Spawn new process
+GET    /tasks/:pid(.:format)        tasks#show        See one specific process and his info
+PATCH  /tasks/:pid(.:format)        tasks#update      Repriorize/ChangeGid to a process
+PUT    /tasks/:pid(.:format)        tasks#update      Repriorize/ChangeGid to a process
+DELETE /tasks/:pid(.:format)        tasks#destroy     Kill a process
