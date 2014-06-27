@@ -1,13 +1,12 @@
 == README
 
-  Verb   URI Pattern                  Controller#Action     Description
-
-  GET    /users/:name/tasks(.:format) users#tasks       See all running processes from an specific user with name :name
-  GET    /users(.:format)             users#index       See all users running processes and ther info
-  GET    /users/:name(.:format)       users#show        See one specific user (with name :name) and his info
-  GET    /tasks(.:format)             tasks#index       See all running processes and their info
-  POST   /tasks(.:format)             tasks#create      Spawn new process
-  GET    /tasks/:pid(.:format)        tasks#show        See one specific process (with pid :pid) and his info
-  PATCH  /tasks/:pid(.:format)        tasks#update      Repriorize/ChangeGid to a process with pid :pid
-  PUT    /tasks/:pid(.:format)        tasks#update      Repriorize/ChangeGid to a process with pid :pid
-  DELETE /tasks/:pid(.:format)        tasks#destroy     Kill a process with pid :pid
+  Verb   URI Pattern                     Controller#Action                             Description
+  GET    /v1/users/:name/tasks(.:format) api/v1/users#tasks {:subdomain=>"api"}        See all running processes from an specific user with name :name
+  GET    /v1/users(.:format)             api/v1/users#index {:subdomain=>"api"}        See all users running processes and ther info
+  GET    /v1/users/:name(.:format)       api/v1/users#show {:subdomain=>"api"}         See one specific user (with name :name) and his info
+  GET    /v1/tasks(.:format)             api/v1/tasks#index {:subdomain=>"api"}        See all running processes and their info
+  POST   /v1/tasks(.:format)             api/v1/tasks#create {:subdomain=>"api"}       Spawn new process
+  GET    /v1/tasks/:pid(.:format)        api/v1/tasks#show {:subdomain=>"api"}         See one specific process (with pid :pid) and his info
+  PATCH  /v1/tasks/:pid(.:format)        api/v1/tasks#update {:subdomain=>"api"}       Repriorize/ChangeGid to a process with pid :pid
+  PUT    /v1/tasks/:pid(.:format)        api/v1/tasks#update {:subdomain=>"api"}       Repriorize/ChangeGid to a process with pid :pid
+  DELETE /v1/tasks/:pid(.:format)        api/v1/tasks#destroy {:subdomain=>"api"}      Kill a process with pid :pid

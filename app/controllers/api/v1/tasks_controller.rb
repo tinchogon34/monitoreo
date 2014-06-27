@@ -1,4 +1,4 @@
-class TasksController < ApplicationController
+class TasksController < ApiController
   # GET /tasks
   # GET /tasks.json
   def index
