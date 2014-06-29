@@ -8,7 +8,7 @@ class User
   end
 
   def self.find(name)
-    User.all.detect {|user| user.name == name}
+    User.all.detect {|user| user.name == name} || {}
   end
 
   def self.all

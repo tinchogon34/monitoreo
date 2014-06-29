@@ -50,7 +50,17 @@ class Task
   end
 
   def self.find(pid)
-    self.all.detect { |task| task.pid == pid.to_i }
+    tasks = all_untree
+
+    task = tasks.detect { |task| task.pid == pid.to_i }
+    return {} unless task
+    `ps h --ppid #{task.pid} -o pid`.each_line do |pid|
+        ctask = tasks.detect {|t| t.pid == pid.to_i}
+        next if not ctask
+        task.childs << ctask
+    end
+
+    return task
   end
 
   def save
