@@ -17,6 +17,7 @@ module Api::V1
         render json: @task
       else
         head :not_found
+      end
     end
 
     # POST /tasks
