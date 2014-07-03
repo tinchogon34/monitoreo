@@ -10,3 +10,6 @@
   PATCH  /v1/tasks/:pid(.:format)        api/v1/tasks#update {:subdomain=>"api"}       Repriorize/ChangeGid to a process with pid :pid
   PUT    /v1/tasks/:pid(.:format)        api/v1/tasks#update {:subdomain=>"api"}       Repriorize/ChangeGid to a process with pid :pid
   DELETE /v1/tasks/:pid(.:format)        api/v1/tasks#destroy {:subdomain=>"api"}      Kill a process with pid :pid
+  ANY    /*path(.:format)                application#catch_404                         Return 404 to non existing routes
+  GET    /                               application#catch_404                         Return 404 to root route
+
