@@ -11,13 +11,21 @@ module Api::V1
     def show
       @user = User.find(params[:name])
 
-      render json: @user
+      if @user
+        render json: @user
+      else
+        head :not_found
+      end
     end
 
     def tasks
       @tasks = Task.all_by_user params[:name]
 
-      render json: @tasks
+      if @tasks
+        render json: @tasks
+      else
+        head :not_found
+      end
     end
   end
 end

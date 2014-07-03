@@ -38,6 +38,8 @@ class Task
 
     tasks_user = tasks.select{|task| task.owner == name}
 
+    return nil if not tasks_user
+
     tasks_user.each do |task|
       `ps h --ppid #{task.pid} -o pid`.each_line do |pid|
         ctask = tasks.detect {|t| t.pid == pid.to_i}
@@ -53,7 +55,7 @@ class Task
     tasks = all_untree
 
     task = tasks.detect { |task| task.pid == pid.to_i }
-    return {} unless task
+    return nil if not task
     `ps h --ppid #{task.pid} -o pid`.each_line do |pid|
         ctask = tasks.detect {|t| t.pid == pid.to_i}
         next if not ctask

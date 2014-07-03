@@ -13,7 +13,10 @@ module Api::V1
     def show
       @task = Task.find(params[:pid])
 
-      render json: @task
+      if @task
+        render json: @task
+      else
+        head :not_found
     end
 
     # POST /tasks
@@ -33,10 +36,14 @@ module Api::V1
     def update
       @task = Task.find(params[:pid])
 
-      if @task.update(params[:task])
-        render json: @task
+      if @task        
+        if @task.update(params[:task])
+          render json: @task
+        else
+          render json: @task.errors, status: :unprocessable_entity
+        end
       else
-        render json: @task.errors, status: :unprocessable_entity
+        head :not_found
       end
     end
 
@@ -44,11 +51,15 @@ module Api::V1
     # DELETE /tasks/1.json
     def destroy
       @task = Task.find(params[:pid])
-      
-      if @task.destroy
-        head :no_content
+
+      if @task      
+        if @task.destroy
+          head :no_content
+        else
+          render json: @task.errors, status: :unprocessable_entity
+        end
       else
-        render json: @task.errors, status: :unprocessable_entity
+        head :not_found
       end
     end
   end
