@@ -120,7 +120,7 @@ class Task
 
   def as_json(options={})
     options[:except] ||= ["errors", "removable"]
-    super(options)
+    super(Hash[options.to_a.reverse])
   end
 
   private
